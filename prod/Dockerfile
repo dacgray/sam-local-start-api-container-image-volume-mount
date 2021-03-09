@@ -13,48 +13,32 @@ RUN yum --enablerepo=remi-php74 install -y \
     php-cli \
     composer
 
-COPY a.php /var/task
+CMD [ "handler.php" ]
+
+
+# ---- Build local image for development ---- #
+
+FROM base as image-local
+
+ARG DEST
+
+RUN  yum --enablerepo=remi-php74 install -y \
+        php-xdebug
+
+# ---- Build aws image for deployment ---- #
+
+FROM base as image-aws
+
+ARG DEST
 
 COPY bootstrap /var/runtime
 RUN chmod 755 /var/runtime/bootstrap
 
-CMD [ "handler.php" ]
+COPY a.php /var/task/
 
-#
-## ---- Build local image for development ---- #
-#
-#FROM base as image-local
-#
-#ARG DEST
-#
-## Use bash conditional to prevent install on each build unless required
-#RUN if [[ "$DEST" == "local" ]] ; then \
-#        yum --enablerepo=remi-php74 install -y \
-#        php-xdebug ; \
-#    fi
-#
-#
-## ---- Build aws image for deployment ---- #
-#
-#FROM base as image-aws
-#
-#ARG DEST
-#
-##COPY bootstrap /var/runtime
-##RUN chmod 755 /var/runtime/bootstrap
-##
-##COPY 99-prod-overrides.ini /etc/php.d
-##
-##COPY handler.php composer.json composer.lock auth.json /var/task/
-##COPY src /var/task/src
-##
-### Use bash conditional to prevent install on each build unless required
-##RUN if [[ "$DEST" == "aws" ]] ; then \
-##        composer install --no-ansi --no-dev --no-interaction --no-progress --prefer-dist --no-scripts --optimize-autoloader ; \
-##    fi
-#
-##RUN yum remove -y composer
-#
-#
-#FROM image-$DEST AS final
+# RUN composer install --no-ansi --no-dev --no-interaction --no-progress --prefer-dist --no-scripts --optimize-autoloader ; \
+
+RUN yum remove -y composer
+
+FROM image-$DEST AS final
 

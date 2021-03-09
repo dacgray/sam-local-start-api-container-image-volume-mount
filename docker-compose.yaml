@@ -13,3 +13,5 @@ services:
     build:
       context: prod
       dockerfile: Dockerfile
+      args:
+        - DEST=local
