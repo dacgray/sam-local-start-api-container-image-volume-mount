@@ -12,3 +12,7 @@ Mount volumes however you need to in your docker-compose file.
 docker-compose up
 sam local start-api --parameter-overrides HostIP=<Your Host IP>
 ```
+
+### Read Only
+
+Note, it's best to mount all volumes as readonly except for a mount to `/tmp` to replicate Lambda.
