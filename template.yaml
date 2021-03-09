@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+
+  Function:
+    Timeout: 10
+
+Parameters:
+
+  HostIP:
+    Type: String
+
+Resources:
+
+  MyFunction:
+
+    Type: AWS::Serverless::Function
+
+    Properties:
+
+      Handler: bootstrap.is.real.handler
+      Runtime: provided.al2
+      CodeUri: invoker/
+      MemorySize: 2048
+
+      Environment:
+        Variables:
+          HOST_IP: !Ref HostIP
+
+      Events:
+
+        Foo:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: ANY
+
+        Bar:
+          Type: HttpApi
+          Properties:
+            Path: "/{proxy+}"
+            Method: ANY

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -euo pipefail
+
+cd ${LAMBDA_TASK_ROOT}
+
+while true
+do
+
+  HEADERS="$(mktemp)"
+
+  EVENT_DATA=$(curl -sS -LD "$HEADERS" -X GET "http://${AWS_LAMBDA_RUNTIME_API}/2018-06-01/runtime/invocation/next")
+  REQUEST_ID=$(grep -Fi Lambda-Runtime-Aws-Request-Id "${HEADERS}" | tr -d '[:space:]' | cut -d: -f2)
+
+  RESULT=$(curl -XPOST "http://${HOST_IP}:9005/2015-03-31/functions/function/invocations" -d "${EVENT_DATA}")
+
+  curl -sS -X POST \
+    "http://${AWS_LAMBDA_RUNTIME_API}/2018-06-01/runtime/invocation/${REQUEST_ID}/response" \
+     -N \
+     -d "${RESULT}"
+
+done

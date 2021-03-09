@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+
+  foo:
+    container_name: foo
+    ports:
+      - 9005:8080
+    volumes:
+      - ./prod:/var/task
+      - ./prod/bootstrap:/var/runtime/bootstrap
+
+    build:
+      context: prod
+      dockerfile: Dockerfile
